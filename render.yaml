@@ -2,6 +2,6 @@ services:
   - type: web
     name: pinyin-app
     env: python
-    buildCommand: "pip install -r requirements.txt && cd myproject && python manage.py migrate && python manage.py create_superuser"
+    buildCommand: "pip install -r requirements.txt && python myproject/manage.py migrate && python myproject/manage.py create_superuser"
     startCommand: "cd myproject && gunicorn myproject.wsgi:application --bind 0.0.0.0:$PORT"
     plan: free
