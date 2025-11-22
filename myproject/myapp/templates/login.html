@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Login{% endblock %}
+{% block head %}
+<style>
+  .auth-page {
+    display: flex;
+    justify-content: center;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 520px;
+    text-align: left;
+    border-radius: 28px;
+    background: rgba(10, 15, 30, 0.85);
+  }
+
+  .auth-logo {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .auth-logo img {
+    width: 180px;
+    filter: drop-shadow(0 15px 30px rgba(124, 58, 237, 0.35));
+  }
+
+  .auth-title {
+    font-size: clamp(2rem, 5vw, 2.8rem);
+  }
+
+  .btn.primary {
+    width: 100%;
+  }
+
+  .btn.primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .field input {
+    background: rgba(5, 10, 24, 0.9);
+  }
+
+  .hint a {
+    color: var(--brand-soft);
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page auth-page">
+  <form method="post" class="card auth-card" id="loginForm">
+    {% csrf_token %}
+
+    <div class="auth-logo">
+      <img src="{% static 'images/pinyin_logo.png' %}" alt="App Logo">
+    </div>
+    <h1 class="title auth-title">Welcome back</h1>
+    <p class="subtitle">Sign in to continue scanning and managing inventory.</p>
+
+    {% if messages %}
+    <div aria-live="polite">
+      {% for m in messages %}
+      <div class="msg">{{ m }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="field">
+      <label for="username">Username</label>
+      <input class="input" id="username" name="username" autocomplete="username" required autofocus />
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
+      <div class="hint">No account? <a href="{% url 'register' %}">Register</a></div>
+    </div>
+
+    <div class="row" style="margin-top: 24px;">
+      <button class="btn primary" id="submitBtn" disabled>Sign In</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('loginForm');
+  const submitBtn = document.getElementById('submitBtn');
+  form.addEventListener('input', () => {
+    const ok = form.username.value.trim() && form.password.value.trim();
+    submitBtn.disabled = !ok;
+  });
+</script>
+{% endblock %}
