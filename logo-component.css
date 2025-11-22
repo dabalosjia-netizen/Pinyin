@@ -1,0 +1,64 @@
+.pinyin-logo {
+    text-align: center;
+    display: inline-block;
+}
+
+.pinyin-logo-circle {
+    width: 80px;
+    height: 80px;
+    border: 3px solid #e74c3c;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 10px;
+    background-color: transparent;
+}
+
+.pinyin-cart {
+    width: 40px;
+    height: 30px;
+    position: relative;
+}
+
+.pinyin-cart-body {
+    width: 30px;
+    height: 20px;
+    border: 2px solid #e74c3c;
+    border-radius: 2px;
+    position: relative;
+}
+
+.pinyin-cart-handle {
+    width: 10px;
+    height: 13px;
+    border: 2px solid #e74c3c;
+    border-right: none;
+    border-radius: 5px 0 0 5px;
+    position: absolute;
+    left: -12px;
+    top: 3px;
+}
+
+.pinyin-cart-wheels {
+    position: absolute;
+    bottom: -8px;
+}
+
+.pinyin-wheel {
+    width: 5px;
+    height: 5px;
+    background-color: #e74c3c;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 5px;
+}
+
+.pinyin-logo-text {
+    color: #e74c3c;
+    font-size: 20px;
+    font-weight: normal;
+    margin-top: 5px;
+    font-style: italic;
+    font-family: 'Brush Script MT', cursive;
+}
