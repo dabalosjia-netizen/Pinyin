@@ -3,8 +3,8 @@ services:
     name: pinyin-app
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt && python src/myproject/myproject/manage.py migrate && python src/myproject/myproject/manage.py collectstatic --noinput
-    startCommand: cd src/myproject && gunicorn myproject.wsgi:application --bind 0.0.0.0:$PORT
+    buildCommand: pip install -r requirements.txt && python src/myproject/myproject/myproject/manage.py migrate && python src/myproject/myproject/myproject/manage.py collectstatic --noinput
+    startCommand: cd src/myproject/myproject/myproject && gunicorn myproject.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.4

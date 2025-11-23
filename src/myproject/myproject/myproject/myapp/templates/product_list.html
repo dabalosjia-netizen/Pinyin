@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+    .list-page {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .list-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .list-header h2 {
+        margin: 0;
+        font-size: clamp(1.8rem, 4vw, 2.4rem);
+    }
+
+    .table-card {
+        overflow-x: auto;
+    }
+
+    table .empty-row td {
+        text-align: center;
+        color: var(--muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+    <section class="panel list-page">
+        <div class="list-header">
+            <div>
+                <span class="badge">Inventory</span>
+                <h2>📦 Product List</h2>
+                <p class="subtitle" style="margin:4px 0 0;">Review all registered products and pricing at a glance.</p>
+            </div>
+            <div class="hero-cta">
+                <a href="{% url 'admin_dashboard' %}" class="btn ghost">Manage Products</a>
+                <a href="{% url 'product_create' %}" class="btn primary">Add Product</a>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Barcode</th>
+                        <th>Name</th>
+                        <th>Price (₱)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td><code>{{ product.barcode }}</code></td>
+                        <td>{{ product.name }}</td>
+                        <td>₱{{ product.price }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr class="empty-row">
+                        <td colspan="3">No products available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}
