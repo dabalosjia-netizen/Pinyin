@@ -3,22 +3,7 @@ services:
     name: pinyin-app
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt && python manage.py migrate && python -c "
-import os
-import django
-from django.conf import settings
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
-django.setup()
-from django.contrib.auth.models import User
-username = os.environ.get('ADMIN_USERNAME', 'admin')
-email = os.environ.get('ADMIN_EMAIL', 'admin@example.com')
-password = os.environ.get('ADMIN_PASSWORD', 'admin123')
-if not User.objects.filter(username=username).exists():
-    User.objects.create_superuser(username=username, email=email, password=password)
-    print(f'Admin user {username} created successfully')
-else:
-    print(f'Admin user {username} already exists')
-" && python manage.py collectstatic --noinput
+    buildCommand: pip install -r requirements.txt && python manage.py migrate && python setup_admin.py && python manage.py collectstatic --noinput
     startCommand: gunicorn myproject.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
