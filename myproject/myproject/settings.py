@@ -24,11 +24,7 @@ SECRET_KEY = 'your-secret-key'  # Change this in production!
 
 DEBUG = True
 
-<<<<<<< HEAD
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
-=======
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "pinyin-cdaz.onrender.com"]
->>>>>>> ce3c81cdf9470baa331a1ceb479b185ab2de9a57
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",

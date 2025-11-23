@@ -3,11 +3,12 @@ services:
     name: pinyin-app
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt && python myproject/manage.py migrate
-    startCommand: gunicorn myproject.wsgi:application
+    buildCommand: cd myproject && python manage.py migrate
+    startCommand: cd myproject && gunicorn myproject.wsgi:application
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.4
       - key: DJANGO_SETTINGS_MODULE
         value: myproject.settings
     buildContext: .
+    rootDir: .
