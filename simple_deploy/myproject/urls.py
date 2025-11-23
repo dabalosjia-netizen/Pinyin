@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from myapp import views
+from myapp import views_debug
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,6 +16,9 @@ urlpatterns = [
 
     # Products
     path('products/', views.get_products, name='get_products'),
+    
+    # Debug endpoint
+    path('debug/users/', views_debug.check_users, name='check_users'),
 ]
 
 # Serve media files in development
