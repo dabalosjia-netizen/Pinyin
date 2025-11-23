@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Barcode Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+    <h1>Live Barcode Scanner</h1>
+    <div id="reader" style="width:500px;"></div>
+    <div id="result"></div>
+
+    <script>
+        function onScanSuccess(decodedText, decodedResult) {
+            fetch('/scan/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'barcode=' + decodedText
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML =
+                    `Scanned: ${data.barcode}, Name: ${data.name}, Quantity: ${data.quantity}`;
+            });
+        }
+
+        var html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+</body>
+</html>
