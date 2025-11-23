@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Scanner | Pinyin{% endblock %}
+
+{% block nav %}
+{% if user.is_superuser %}
+<a href="{% url 'admin_dashboard' %}" class="btn">📦 Dashboard</a>
+{% endif %}
+<a href="{% url 'logout' %}" class="btn danger">Logout</a>
+{% endblock %}
+
+{% block head %}
+<style>
+  .scanner-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr);
+    gap: 28px;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .panel {
+    background: rgba(11, 19, 39, 0.9);
+    border: 1px solid #1f2937;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  }
+
+  .panel h1 {
+    font-size: 28px;
+    margin: 0 0 8px;
+  }
+
+  .panel p {
+    margin: 0;
+    color: #e2e8f0;
+  }
+
+  .manual-entry {
+    margin: 28px 0 16px;
+  }
+
+  .manual-entry label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+
+  .manual-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .manual-row input {
+    flex: 1;
+    padding: 16px 18px;
+    border-radius: 16px;
+    border: 1px solid #1f2937;
+    background: #0d142a;
+    color: #f8fafc;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .manual-row input:focus {
+    border-color: #334155;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+  }
+
+  .camera-shell {
+    margin-top: 18px;
+    background: #050914;
+    border-radius: 20px;
+    border: 1px solid #1f2338;
+    padding: 16px;
+    position: relative;
+    min-height: 260px;
+  }
+
+  video {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid #111827;
+    background: #000;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+  }
+
+  .scan-target {
+    position: absolute;
+    inset: 32px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    pointer-events: none;
+  }
+
+  .camera-status {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #94a3b8;
+  }
+
+  .hint {
+    margin-top: 18px;
+    font-size: 13px;
+    color: #b9c3d6;
+  }
+
+  .cart-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cart-header h2 {
+    margin: 0;
+  }
+
+  .cart-items {
+    flex: 1;
+    background: #050b19;
+    border: 1px solid #1a2033;
+    border-radius: 18px;
+    padding: 0;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+
+  .cart-item {
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .cart-item:last-child {
+    border-bottom: none;
+  }
+
+  .cart-item strong {
+    display: block;
+    font-size: 15px;
+  }
+
+  .cart-item span {
+    color: #a5b4fc;
+    font-size: 13px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+    font-size: 14px;
+  }
+
+  .summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 16px;
+    border: 1px solid #1f2937;
+  }
+
+  .summary strong {
+    font-size: 22px;
+  }
+
+  .cart-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .cart-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    min-width: 240px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    border: 1px solid #1f2937;
+    background: rgba(15, 23, 42, 0.95);
+    color: #fff;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .toast.error {
+    border-color: #7f1d1d;
+    background: rgba(69, 10, 10, 0.95);
+  }
+
+  .toast.success {
+    border-color: #14532d;
+    background: rgba(6, 78, 59, 0.95);
+  }
+
+  @media (max-width: 960px) {
+    .scanner-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  video {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid #111827;
+    background: #000;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="scanner-layout">
+  <section class="panel">
+    <h1>Scan Product</h1>
+    <p>Point the camera at a barcode or enter it manually.</p>
+
+    <div class="manual-entry">
+      <label for="barcodeInput">Enter Barcode Manually:</label>
+      <div class="manual-row">
+        <input id="barcodeInput" type="text" placeholder="e.g. 396218137184" autocomplete="off" />
+        <button class="btn primary" id="addManualBtn">Add</button>
+      </div>
+    </div>
+
+    <div class="camera-shell">
+      <video id="cameraView" autoplay playsinline muted></video>
+      <div class="scan-target"></div>
+      <div class="camera-status" id="cameraStatus">Camera starting…</div>
+
+      <!-- Flip camera button -->
+      <button id="flipCameraBtn" class="btn" style="position:absolute; bottom:16px; right:16px;">Flip</button>
+    </div>
+
+    <p class="hint">Works best on localhost or HTTPS. Allow camera access to enable live scanning.</p>
+  </section>
+
+  <section class="panel cart-panel">
+    <div class="cart-header">
+      <h2>Cart</h2>
+      <button class="btn danger" id="clearCartBtn">Clear</button>
+    </div>
+
+    <div id="cartItems" class="cart-items empty-state">No products yet</div>
+
+    <div class="summary">
+      <span>Total</span>
+      <strong id="cartTotal">₱0.00</strong>
+    </div>
+
+    <div class="cart-actions">
+      <button class="btn" id="checkoutBtn" disabled>Checkout</button>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const barcodeInput = document.getElementById("barcodeInput");
+  const addManualBtn = document.getElementById("addManualBtn");
+  const cartEl = document.getElementById("cartItems");
+  const cartTotalEl = document.getElementById("cartTotal");
+  const clearBtn = document.getElementById("clearCartBtn");
+  const checkoutBtn = document.getElementById("checkoutBtn");
+  const toastEl = document.getElementById("toast");
+  const cameraView = document.getElementById("cameraView");
+  const cameraStatus = document.getElementById("cameraStatus");
+  const flipBtn = document.getElementById("flipCameraBtn");
+
+  let flipped = false;
+
+  flipBtn.addEventListener("click", () => {
+    flipped = !flipped;
+    cameraView.style.transform = flipped ? "scaleX(-1)" : "scaleX(1)";
+  });
+
+
+  const cart = new Map();
+
+  function peso(value) {
+    return new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(value);
+  }
+
+  function showToast(message, type = "success") {
+    toastEl.textContent = message;
+    toastEl.className = `toast show ${type}`;
+    setTimeout(() => toastEl.classList.remove("show"), 2500);
+  }
+
+  function renderCart() {
+    if (cart.size === 0) {
+      cartEl.innerHTML = "No products yet";
+      cartEl.classList.add("empty-state");
+      cartTotalEl.textContent = "₱0.00";
+      checkoutBtn.disabled = true;
+      return;
+    }
+
+    cartEl.classList.remove("empty-state");
+    cartEl.innerHTML = "";
+
+    let total = 0;
+    cart.forEach((item) => {
+      total += item.price * item.qty;
+      const div = document.createElement("div");
+      div.className = "cart-item";
+      div.innerHTML = `
+        <div>
+          <strong>${item.name}</strong>
+          <span>${item.barcode}</span>
+        </div>
+        <div>
+          <strong>${peso(item.price)}</strong>
+          <span>Qty: ${item.qty}</span>
+        </div>
+      `;
+      cartEl.appendChild(div);
+    });
+
+    cartTotalEl.textContent = peso(total);
+    checkoutBtn.disabled = false;
+  }
+
+  async function lookupBarcode(barcode) {
+    try {
+      const response = await fetch("{% url 'scanner' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({ barcode }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        showToast(`Product not found: ${barcode}`, "error");
+        return;
+      }
+
+      const existing = cart.get(data.barcode);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.set(data.barcode, { ...data, price: Number(data.price), qty: 1 });
+      }
+      renderCart();
+      showToast(`${data.name} added`, "success");
+    } catch (error) {
+      showToast("Unable to reach server", "error");
+    }
+  }
+
+  function handleManualSubmit() {
+    const barcode = barcodeInput.value.trim();
+    if (!barcode) {
+      showToast("Enter a barcode first", "error");
+      return;
+    }
+    lookupBarcode(barcode);
+    barcodeInput.value = "";
+    barcodeInput.focus();
+  }
+
+  function clearCart() {
+    cart.clear();
+    renderCart();
+    showToast("Cart cleared", "success");
+  }
+
+  function initCamera() {
+    const mediaDevices = navigator.mediaDevices;
+    if (!mediaDevices || typeof mediaDevices.getUserMedia !== "function") {
+      cameraStatus.textContent = "Camera not supported in this browser.";
+      return;
+    }
+
+    mediaDevices
+      .getUserMedia({ video: { facingMode: "environment" } })
+      .then((stream) => {
+        cameraView.srcObject = stream;
+        cameraStatus.textContent = "Camera running.";
+      })
+      .catch(() => {
+        cameraStatus.textContent = "Camera permission denied.";
+      });
+  }
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return "";
+  }
+
+  addManualBtn.addEventListener("click", handleManualSubmit);
+  barcodeInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleManualSubmit();
+    }
+  });
+  clearBtn.addEventListener("click", clearCart);
+  checkoutBtn.addEventListener("click", () => showToast("Checkout flow coming soon", "success"));
+
+  renderCart();
+  initCamera();
+</script>
+{% endblock %}
