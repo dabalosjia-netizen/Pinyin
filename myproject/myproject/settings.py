@@ -20,15 +20,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ---------------------------
 # Security
 # ---------------------------
-SECRET_KEY = 'your-secret-key'  # Change this in production!
+import os
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key-for-dev')
 
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "pinyin-cdaz.onrender.com"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "pinyin-cdaz.onrender.com", "*.onrender.com"]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8000",
+    "https://pinyin-cdaz.onrender.com",
+    "https://*.onrender.com",
 ]
 
 # ---------------------------
@@ -48,6 +51,7 @@ INSTALLED_APPS = [
 # Middleware
 # ---------------------------
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -123,6 +127,9 @@ USE_TZ = True
 # ---------------------------
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Whitenoise static files serving
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ---------------------------
 # Media files
