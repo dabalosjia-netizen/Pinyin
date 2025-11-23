@@ -17,4 +17,3 @@ services:
       - key: DEBUG
         value: False
     autoDeploy: true
-    rootDir: src/myproject
