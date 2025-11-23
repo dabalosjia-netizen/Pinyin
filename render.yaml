@@ -10,3 +10,4 @@ services:
         value: 3.13.4
       - key: DJANGO_SETTINGS_MODULE
         value: myproject.settings
+    buildContext: .
